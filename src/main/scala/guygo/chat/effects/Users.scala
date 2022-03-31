@@ -29,6 +29,8 @@ case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users.
 
 object UsersLive:
 
+  val live2 = Ref.make(Map.empty[UserId, User]).toLayer >>> UsersLive.apply.toLayer //NOCOMMIT replace it if it works
+
   val live = {
     for
       ref <- Ref.make(Map.empty[UserId, User])

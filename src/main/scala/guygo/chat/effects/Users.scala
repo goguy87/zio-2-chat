@@ -1,7 +1,6 @@
 package guygo.chat.effects
 
-import zio.Accessible
-import zio.{Ref, Task, Random, ZIO}
+import zio.{Accessible, Function2ToLayerOps, Random, Ref, Task, ZIO, ZLayer}
 
 object Users extends Accessible[Users.Service]:
 
@@ -29,12 +28,4 @@ case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users.
 
 object UsersLive:
 
-  val live2 = Ref.make(Map.empty[UserId, User]).toLayer >>> UsersLive.apply.toLayer //NOCOMMIT replace it if it works
-
-  val live = {
-    for
-      ref <- Ref.make(Map.empty[UserId, User])
-      random <- ZIO.service[Random]
-    yield UsersLive(ref, random)
-  }.toLayer
-
+  val live = Ref.make(Map.empty[UserId, User]).toLayer >>> UsersLive.apply.toLayer

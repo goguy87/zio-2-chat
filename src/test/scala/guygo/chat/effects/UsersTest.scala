@@ -9,7 +9,7 @@ object UsersTest extends DefaultRunnableSpec {
   def spec = suite("Users") {
 
     test("create a user") {
-      TestEnv.run {
+      TestEnv.evaluate {
         for
           user <- Users(_.create(CreateUserRequest("guy")))
           result <- Users(_.get(user.id))

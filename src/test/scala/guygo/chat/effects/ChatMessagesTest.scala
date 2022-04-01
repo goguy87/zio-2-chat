@@ -3,30 +3,56 @@ package guygo.chat.effects
 import zio._
 import zio.test._
 import zio.test.Assertion._
+import guygo.chat.effects.ListChatMessages._
 
 object ChatMessagesTest extends DefaultRunnableSpec {
+
+  def createChatMessage(toUserId: UserId, fromUserId: UserId, message: String) =
+    ChatMessages(_.create(
+      CreateChatMessage(
+        to = toUserId,
+        from = fromUserId,
+        message = Some(message))))
 
   def spec = suite("ChatMessages") {
 
     test("create a chat message") {
       TestEnv.evaluate {
         for
-          toUserId <- Random.nextUUID
-          fromUserId <- Random.nextUUID
+          to <- Random.nextUUID
+          from <- Random.nextUUID
           message = "hello user!"
-          chatMessage <- ChatMessages(_.create(
-            CreateChatMessage(
-              to = toUserId,
-              from = fromUserId,
-              message = Some(message))))
+          chatMessage <- createChatMessage(to, from, message)
           result <- ChatMessages(_.get(chatMessage.id))
         yield assert(chatMessage) {
-          hasField[ChatMessage, UserId]("from", _.from, equalTo(fromUserId))
-            && hasField[ChatMessage, UserId]("to", _.to, equalTo(toUserId))
+          hasField[ChatMessage, UserId]("from", _.from, equalTo(from))
+            && hasField[ChatMessage, UserId]("to", _.to, equalTo(to))
             && hasField[ChatMessage, Option[String]]("message", _.message, equalTo(Some(message)))
         } && assertTrue(result contains chatMessage)
       }
     }
+
+    test("list all chat messages from user") {
+      TestEnv.evaluate {
+        for
+          to <- Random.nextUUID
+          from <- Random.nextUUID
+          from2 <- Random.nextUUID
+          message = "hello user!"
+          chat1 <- createChatMessage(to, from, message)
+          chat2 <- createChatMessage(to, from, message)
+          chat3 <- createChatMessage(to, from2, message)
+          result <- ChatMessages(_.listChatMessages(ListChatMessages(Filter.From(from))))
+        yield assertTrue(result.chatMessages.size == 2
+          && !result.chatMessages.exists(_.id equals chat3.id))
+      }
+    }
+
+    /**
+     * TODO
+     * 1. list messages pagination
+     * 2. implicit tenant
+     */
   }
 
 }

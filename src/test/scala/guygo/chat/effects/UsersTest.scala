@@ -11,11 +11,11 @@ object UsersTest extends DefaultRunnableSpec {
     test("create a user") {
       TestEnv.evaluate {
         for
-          user <- Users(_.create(CreateUserRequest("guy")))
+          user <- Users(_.create(CreateUser("guy")))
           result <- Users(_.get(user.id))
-        yield assert(user)(
-          hasField("name", (user: User) => user.name, equalTo("guy")))
-          && assertTrue(result contains user)
+        yield assert(user) {
+          hasField[User, String]("name", _.name, equalTo("guy"))
+        } && assertTrue(result contains user)
       }
     }
   }

@@ -5,4 +5,5 @@ import java.util.UUID
 package object effects:
   
   type UserId = UUID
+  type ChatMessageId = UUID
 

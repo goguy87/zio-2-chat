@@ -5,18 +5,18 @@ import zio.{Accessible, Function2ToLayerOps, Random, Ref, Task, ZIO, ZLayer}
 object Users extends Accessible[Users.Service]:
 
   trait Service:
-    def create(request: CreateUserRequest): Task[User]
+    def create(request: CreateUser): Task[User]
 
     def get(id: UserId): Task[Option[User]]
 
 
-case class CreateUserRequest(name: String)
+case class CreateUser(name: String)
 
 case class User(id: UserId, name: String)
 
 case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users.Service:
 
-  def create(request: CreateUserRequest): Task[User] =
+  def create(request: CreateUser): Task[User] =
     for
       id <- random.nextUUID
       user = User(id, request.name)

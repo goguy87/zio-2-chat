@@ -20,11 +20,11 @@ case class CreateUser(name: String)
 
 case class User(id: UserId, name: String)
 
-case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users:
+case class UsersLive(ref: Ref[Map[UserId, User]]) extends Users:
 
   def create(request: CreateUser): Task[User] =
     for
-      id <- random.nextUUID
+      id <- Random.nextUUID
       user = User(id, request.name)
       _ <- ref.update(_.updated(id, user))
     yield user
@@ -34,5 +34,5 @@ case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users:
 
 object UsersLive:
 
-  val layer = ZLayer.fromZIO(Ref.make(Map.empty[UserId, User])) ++ Random.live >>>
+  val layer = ZLayer.fromZIO(Ref.make(Map.empty[UserId, User])) >>>
     ZLayer.fromFunction(UsersLive.apply _)

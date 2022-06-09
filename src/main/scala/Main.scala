@@ -10,5 +10,5 @@ object Main extends ZIOAppDefault:
     _ <- Console.printLine(s"created user: $user, fetched result: $result")
   yield ()
 
-  def run = appLogic.provide(UsersLive.layer, Random.live)
+  def run = appLogic.provide(UsersLive.layer)
 

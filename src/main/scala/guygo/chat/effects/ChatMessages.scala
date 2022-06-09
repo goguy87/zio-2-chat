@@ -37,7 +37,7 @@ case class ListChatMessagesResponse(chatMessages: Seq[ChatMessage])
 
 case class ChatMessage(id: ChatMessageId, to: UserId, from: UserId, message: Option[String])
 
-case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]], random: Random) extends ChatMessages:
+case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]]) extends ChatMessages:
 
   def create(request: CreateChatMessage): Task[ChatMessage] =
     for
@@ -59,13 +59,13 @@ case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]], random: R
     }
 
   private def toChatMessage(request: CreateChatMessage): UIO[ChatMessage] =
-    random.nextUUID
+    Random.nextUUID
       .map(ChatMessage(_, request.to, request.from, request.message))
 
 
 object ChatMessagesLive:
 
-  val layer = ZLayer.fromZIO(Ref.make(Map.empty[ChatMessageId, ChatMessage])) ++ Random.live >>>
+  val layer = ZLayer.fromZIO(Ref.make(Map.empty[ChatMessageId, ChatMessage])) >>>
     ZLayer.fromFunction(ChatMessagesLive.apply _)
 
 

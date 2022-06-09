@@ -5,10 +5,10 @@ import guygo.chat.effects._
 object Main extends ZIOAppDefault:
 
   val appLogic = for
-    user <- Users(_.create(CreateUser("guy")))
-    result <- Users(_.get(user.id))
+    user <- Users.create(CreateUser("guy"))
+    result <- Users.get(user.id)
     _ <- Console.printLine(s"created user: $user, fetched result: $result")
   yield ()
 
-  def run = appLogic.provide(UsersLive.live, Random.live, Console.live)
+  def run = appLogic.provide(UsersLive.layer, Random.live)
 

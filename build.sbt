@@ -3,7 +3,7 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "guygo.chat"
 ThisBuild / organizationName := "example"
 
-lazy val zioVersion = "2.0.0-RC3"
+lazy val zioVersion = "2.0.0-RC6"
 
 lazy val root = (project in file("."))
   .settings(
@@ -14,7 +14,8 @@ lazy val root = (project in file("."))
 
 
       // --- Test ---
-      "dev.zio" %% "zio-test" % zioVersion % Test,
+      "dev.zio" %% "zio-test" % zioVersion % "test",
+      "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
 //      "org.specs2" %% "specs2-core" % "5.0.0" % "test",
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")

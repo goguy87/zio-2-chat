@@ -1,18 +1,25 @@
 package guygo.chat.effects
 
-import zio.{Accessible, Function2ToLayerOps, Random, Ref, Task, UIO, ZIO}
+import zio.{Random, Ref, Task, UIO, RIO, ZIO, ZLayer}
 import guygo.chat.effects.ListChatMessages.Filter
 
-object ChatMessages extends Accessible[ChatMessages.Service]:
+trait ChatMessages:
+  def create(request: CreateChatMessage): Task[ChatMessage]
 
-  trait Service:
+  def get(id: ChatMessageId): Task[Option[ChatMessage]]
 
-    def create(request: CreateChatMessage): Task[ChatMessage]
+  def listChatMessages(request: ListChatMessages): Task[ListChatMessagesResponse]
 
-    def get(id: ChatMessageId): Task[Option[ChatMessage]]
+object ChatMessages:
 
-    def listChatMessages(request: ListChatMessages): Task[ListChatMessagesResponse]
+  def create(request: CreateChatMessage): RIO[ChatMessages, ChatMessage] =
+    ZIO.serviceWithZIO[ChatMessages](_.create(request))
 
+  def get(id: ChatMessageId): RIO[ChatMessages, Option[ChatMessage]] =
+    ZIO.serviceWithZIO[ChatMessages](_.get(id))
+
+  def listChatMessages(request: ListChatMessages): RIO[ChatMessages, ListChatMessagesResponse] =
+    ZIO.serviceWithZIO[ChatMessages](_.listChatMessages(request))
 
 case class CreateChatMessage(to: UserId, from: UserId, message: Option[String])
 
@@ -30,7 +37,7 @@ case class ListChatMessagesResponse(chatMessages: Seq[ChatMessage])
 
 case class ChatMessage(id: ChatMessageId, to: UserId, from: UserId, message: Option[String])
 
-case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]], random: Random) extends ChatMessages.Service:
+case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]], random: Random) extends ChatMessages:
 
   def create(request: CreateChatMessage): Task[ChatMessage] =
     for
@@ -58,6 +65,7 @@ case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]], random: R
 
 object ChatMessagesLive:
 
-  val live = Ref.make(Map.empty[ChatMessageId, ChatMessage]).toLayer >>> ChatMessagesLive.apply.toLayer
+  val layer = ZLayer.fromZIO(Ref.make(Map.empty[ChatMessageId, ChatMessage])) ++ Random.live >>>
+    ZLayer.fromFunction(ChatMessagesLive.apply _)
 
 

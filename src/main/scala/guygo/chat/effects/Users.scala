@@ -1,20 +1,26 @@
 package guygo.chat.effects
 
-import zio.{Accessible, Function2ToLayerOps, Random, Ref, Task, ZIO, ZLayer}
+import zio.{Random, Ref, Task, RIO, ZIO, ZLayer}
 
-object Users extends Accessible[Users.Service]:
+trait Users:
+  def create(request: CreateUser): Task[User]
 
-  trait Service:
-    def create(request: CreateUser): Task[User]
+  def get(id: UserId): Task[Option[User]]
 
-    def get(id: UserId): Task[Option[User]]
+object Users:
+
+  def create(request: CreateUser): RIO[Users, User] =
+    ZIO.serviceWithZIO[Users](_.create(request))
+
+  def get(id: UserId): RIO[Users, Option[User]] =
+    ZIO.serviceWithZIO[Users](_.get(id))
 
 
 case class CreateUser(name: String)
 
 case class User(id: UserId, name: String)
 
-case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users.Service:
+case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users:
 
   def create(request: CreateUser): Task[User] =
     for
@@ -28,4 +34,5 @@ case class UsersLive(ref: Ref[Map[UserId, User]], random: Random) extends Users.
 
 object UsersLive:
 
-  val live = Ref.make(Map.empty[UserId, User]).toLayer >>> UsersLive.apply.toLayer
+  val layer = ZLayer.fromZIO(Ref.make(Map.empty[UserId, User])) ++ Random.live >>>
+    ZLayer.fromFunction(UsersLive.apply _)

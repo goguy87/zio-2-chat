@@ -1,10 +1,10 @@
 package guygo.chat.effects
 
-import zio.{Random, ZEnv, ZIO}
+import zio.{Random, ZIO}
 
 object TestEnv:
 
-  private type TestEnv = Users.Service & ChatMessages.Service
+  private type TestEnv = Users & ChatMessages
 
-  def evaluate[E, A](zio: ZIO[TestEnv with ZEnv, E, A]): ZIO[ZEnv, E, A] =
-    zio.provideSome[ZEnv](UsersLive.live.fresh, ChatMessagesLive.live.fresh)
+  def evaluate[E, A](zio: ZIO[ TestEnv, E, A]): ZIO[Any, E, A] =
+    zio.provideLayer(UsersLive.layer.fresh ++ ChatMessagesLive.layer.fresh)

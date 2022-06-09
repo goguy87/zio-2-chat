@@ -1,9 +1,11 @@
 package guygo.chat.effects
 
-import zio._
-import zio.test._
-import zio.test.Assertion._
-import guygo.chat.effects.ListChatMessages._
+import zio.*
+import zio.test.*
+import zio.test.Assertion.*
+import guygo.chat.effects.ListChatMessages.*
+
+import java.util.UUID
 
 object ChatMessagesTest extends ZIOSpecDefault {
 
@@ -18,8 +20,8 @@ object ChatMessagesTest extends ZIOSpecDefault {
 
     test("create a chat message") {
       for
-        to <- Random.nextUUID
-        from <- Random.nextUUID
+        to <- randomUserId
+        from <- randomUserId
         message = "hello user!"
         chatMessage <- createChatMessage(to, from, message)
         result <- ChatMessages.get(chatMessage.id)
@@ -32,9 +34,9 @@ object ChatMessagesTest extends ZIOSpecDefault {
 
     test("list all chat messages from user") {
       for
-        to <- Random.nextUUID
-        from <- Random.nextUUID
-        from2 <- Random.nextUUID
+        to <- randomUserId
+        from <- randomUserId
+        from2 <- randomUserId
         message = "hello user!"
         chat1 <- createChatMessage(to, from, message)
         chat2 <- createChatMessage(to, from, message)
@@ -51,4 +53,5 @@ object ChatMessagesTest extends ZIOSpecDefault {
      */
   }.provideCustomLayer(ChatMessagesLive.layer)
 
+  val randomUserId = Random.nextUUID.map(UserId.from)
 }

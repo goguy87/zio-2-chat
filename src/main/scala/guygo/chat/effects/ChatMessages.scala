@@ -60,6 +60,7 @@ case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]]) extends C
 
   private def toChatMessage(request: CreateChatMessage): UIO[ChatMessage] =
     Random.nextUUID
+      .map(ChatMessageId.from)
       .map(ChatMessage(_, request.to, request.from, request.message))
 
 

@@ -4,6 +4,12 @@ import java.util.UUID
 
 package object effects:
   
-  type UserId = UUID
-  type ChatMessageId = UUID
+  opaque type UserId = UUID
+  opaque type ChatMessageId = UUID
+  
+  object UserId:
+    def from(uuid: UUID): UserId = uuid
+    
+  object ChatMessageId:
+    def from(uuid: UUID): ChatMessageId = uuid
 

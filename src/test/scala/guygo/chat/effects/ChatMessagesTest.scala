@@ -28,7 +28,7 @@ object ChatMessagesTest extends ZIOSpecDefault {
       yield assert(chatMessage) {
         hasField[ChatMessage, UserId]("from", _.from, equalTo(from))
           && hasField[ChatMessage, UserId]("to", _.to, equalTo(to))
-          && hasField[ChatMessage, Option[String]]("message", _.message, equalTo(Some(message)))
+          && hasField[ChatMessage, Option[String]]("message", _.message, isSome(equalTo(message)))
       } && assertTrue(result contains chatMessage)
     }
 

@@ -55,7 +55,11 @@ case class ChatMessagesLive(ref: Ref[Map[ChatMessageId, ChatMessage]]) extends C
           .map(_.values
             .filter(_.from equals from))
           .map(chatMessages => ListChatMessagesResponse(chatMessages.toSeq))
-      case Filter.Empty => ZIO.succeed(ListChatMessagesResponse(Seq.empty))
+        
+      case Filter.Empty => 
+        ref.get.map { db =>
+          ListChatMessagesResponse(db.values.toSeq)
+        }
     }
 
   private def toChatMessage(request: CreateChatMessage): UIO[ChatMessage] =

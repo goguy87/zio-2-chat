@@ -13,13 +13,13 @@ trait ChatMessages:
 object ChatMessages:
 
   def create(request: CreateChatMessage): RIO[ChatMessages, ChatMessage] =
-    ZIO.serviceWithZIO[ChatMessages](_.create(request))
+    ZIO.serviceWithZIO(_.create(request))
 
   def get(id: ChatMessageId): RIO[ChatMessages, Option[ChatMessage]] =
-    ZIO.serviceWithZIO[ChatMessages](_.get(id))
+    ZIO.serviceWithZIO(_.get(id))
 
   def listChatMessages(request: ListChatMessages): RIO[ChatMessages, ListChatMessagesResponse] =
-    ZIO.serviceWithZIO[ChatMessages](_.listChatMessages(request))
+    ZIO.serviceWithZIO(_.listChatMessages(request))
 
 case class CreateChatMessage(to: UserId, from: UserId, message: Option[String])
 

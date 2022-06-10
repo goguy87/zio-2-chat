@@ -10,10 +10,10 @@ trait Users:
 object Users:
 
   def create(request: CreateUser): RIO[Users, User] =
-    ZIO.serviceWithZIO[Users](_.create(request))
+    ZIO.serviceWithZIO(_.create(request))
 
   def get(id: UserId): RIO[Users, Option[User]] =
-    ZIO.serviceWithZIO[Users](_.get(id))
+    ZIO.serviceWithZIO(_.get(id))
 
 
 case class CreateUser(name: String)

@@ -19,6 +19,7 @@ object ChatMessagesTest extends ZIOSpecDefault:
     get,
     list,
     listWithPaging,
+    listWitDefaultPage,
     listWithFilterByUser,
     listWithFilterByUserAdPagination
   ).provideCustomLayer(ChatMessagesLive.layer)
@@ -71,6 +72,15 @@ object ChatMessagesTest extends ZIOSpecDefault:
     yield assert(result.chatMessages) {
       hasSameElements(Seq(chat1, chat2, chat3))
     }
+  }
+
+  val listWitDefaultPage = test("list all chat messages with default page") {
+    for
+      to <- randomUserId
+      from <- randomUserId
+      _ <- ZIO.collectAll(List.fill(Page.defaultLimit + 1)(createChatMessage(to, from, message)))
+      result <- ChatMessages.listChatMessages(ListChatMessages())
+    yield assertTrue(result.chatMessages.size == Page.defaultLimit)
   }
 
   val listWithPaging = test("list all chat messages with pagination") {

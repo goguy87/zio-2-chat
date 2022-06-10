@@ -19,7 +19,8 @@ object ChatMessagesTest extends ZIOSpecDefault:
     get,
     list,
     listWithPaging,
-    listWithFilterByUser
+    listWithFilterByUser,
+    listWithFilterByUserAdPagination
   ).provideCustomLayer(ChatMessagesLive.layer)
 
   val randomUserId = Random.nextUUID.map(UserId.from)
@@ -104,5 +105,26 @@ object ChatMessagesTest extends ZIOSpecDefault:
       result <- ChatMessages.listChatMessages(ListChatMessages(Filter.ByUser(from)))
     yield assert(result.chatMessages) {
       hasSameElements(Seq(chat1, chat2))
+    }
+  }
+
+  val listWithFilterByUserAdPagination = test("list all chat messages from user with pagination") {
+    for
+      to <- randomUserId
+      from <- randomUserId
+      from2 <- randomUserId
+      chat1 <- createChatMessage(to, from, message)
+      chat2 <- createChatMessage(to, from, message)
+      chat3 <- createChatMessage(to, from, message)
+      request = ListChatMessages(
+        filter = Filter.ByUser(from),
+        page = Page.Offset(0, 2))
+      _ <- createChatMessage(to, from2, message)
+      firstPage <- ChatMessages.listChatMessages(request)
+      secondPage <- ChatMessages.listChatMessages(request.copy(page = Page.Offset(2, 2)))
+    yield assert(firstPage.chatMessages) {
+      hasSameElements(Seq(chat1, chat2))
+    } && assert(secondPage.chatMessages) {
+      hasSameElements(Seq(chat3))
     }
   }

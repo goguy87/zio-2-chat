@@ -23,16 +23,16 @@ object ChatMessages:
 
 case class CreateChatMessage(to: UserId, from: UserId, message: Option[String])
 
-case class ListChatMessages(filter: Filter = Filter.Empty)
+case class ListChatMessages(filter: Filter = Filter.Empty, page: Page = Page.first)
 
 object ListChatMessages:
   sealed trait Filter
 
   object Filter:
-    case class From(from: UserId) extends Filter
+    case class ByUser(id: UserId) extends Filter
 
     case object Empty extends Filter
 
-case class ListChatMessagesResponse(chatMessages: Seq[ChatMessage])
+case class ListChatMessagesResponse(chatMessages: Seq[ChatMessage], pagingMetadata: PagingMetadata)
 
 case class ChatMessage(id: ChatMessageId, to: UserId, from: UserId, message: Option[String])

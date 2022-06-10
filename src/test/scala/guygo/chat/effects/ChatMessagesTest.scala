@@ -11,15 +11,15 @@ object ChatMessagesTest extends ZIOSpecDefault:
 
   /**
    * TODO
-   * 1. list messages pagination
-   * 2. implicit tenant
+   * 1. implicit tenant
    */
 
   def spec = suite("ChatMessages")(
     create,
     get,
     list,
-    listChatMessagesOfUser
+    listWithPaging,
+    listWithFilterByUser
   ).provideCustomLayer(ChatMessagesLive.layer)
 
   val randomUserId = Random.nextUUID.map(UserId.from)
@@ -49,7 +49,7 @@ object ChatMessagesTest extends ZIOSpecDefault:
     }
   }
 
-  val get = test("create a chat message") {
+  val get = test("get a chat message") {
     for
       to <- randomUserId
       from <- randomUserId
@@ -72,7 +72,28 @@ object ChatMessagesTest extends ZIOSpecDefault:
     }
   }
 
-  val listChatMessagesOfUser = test("list all chat messages from user") {
+  val listWithPaging = test("list all chat messages with pagination") {
+    for
+      to <- randomUserId
+      from <- randomUserId
+      from2 <- randomUserId
+      chat1 <- createChatMessage(to, from, message)
+      chat2 <- createChatMessage(to, from, message)
+      chat3 <- createChatMessage(to, from2, message)
+      request = ListChatMessages(
+        page = Page.Offset(0, 2))
+      firstPage <- ChatMessages.listChatMessages(request)
+      secondPage <- ChatMessages.listChatMessages(request.copy(page = Page.Offset(2, 2)))
+    yield assert(firstPage) {
+      hasField[ListChatMessagesResponse, Seq[ChatMessage]]("chatMessages", _.chatMessages, hasSameElements(Seq(chat1, chat2))) &&
+        hasField("pagingMetadata", _.pagingMetadata, equalTo(PagingMetadata.Count(2)))
+    } && assert(secondPage) {
+      hasField[ListChatMessagesResponse, Seq[ChatMessage]]("chatMessages", _.chatMessages, hasSameElements(Seq(chat3))) &&
+        hasField("pagingMetadata", _.pagingMetadata, equalTo(PagingMetadata.Count(1)))
+    }
+  }
+
+  val listWithFilterByUser = test("list all chat messages from user") {
     for
       to <- randomUserId
       from <- randomUserId
@@ -80,7 +101,7 @@ object ChatMessagesTest extends ZIOSpecDefault:
       chat1 <- createChatMessage(to, from, message)
       chat2 <- createChatMessage(to, from, message)
       _ <- createChatMessage(to, from2, message)
-      result <- ChatMessages.listChatMessages(ListChatMessages(Filter.From(from)))
+      result <- ChatMessages.listChatMessages(ListChatMessages(Filter.ByUser(from)))
     yield assert(result.chatMessages) {
       hasSameElements(Seq(chat1, chat2))
     }

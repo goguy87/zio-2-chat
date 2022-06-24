@@ -16,5 +16,8 @@ case class UsersLive(ref: Ref[Map[UserId, User]]) extends Users:
 
 object UsersLive:
 
-  val layer = ZLayer.fromZIO(Ref.make(Map.empty[UserId, User])) >>>
-    ZLayer.fromFunction(UsersLive.apply _)
+  val layer = ZLayer {
+    for
+      ref <- Ref.make(Map.empty[UserId, User])
+    yield UsersLive(ref)
+  }

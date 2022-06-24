@@ -47,7 +47,10 @@ case class ChatMessagesLive(ref: Ref[Database])
 
 object ChatMessagesLive:
 
-  val layer = ZLayer.fromZIO(Ref.make(Map.empty[ChatMessageId, ChatMessage])) >>>
-    ZLayer.fromFunction(ChatMessagesLive.apply _)
+  val layer = ZLayer {
+    for
+      ref <- Ref.make(Map.empty[ChatMessageId, ChatMessage])
+    yield ChatMessagesLive(ref)
+  }
 
   type Database = Map[ChatMessageId, ChatMessage]

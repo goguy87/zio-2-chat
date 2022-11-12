@@ -1,16 +1,20 @@
 import zio.*
 import zio.Console
-import guygo.chat.effects._
+import guygo.chat.api.v1.chat_service.HelloRequest
+import guygo.chat.api.v1.chat_service.ZioChatService.ChatServiceClient
+import guygo.chat.effects.*
+import guygo.chat.service.ChatService
 
 object Main extends ZIOAppDefault {
 
-  val appLogic = for
-    user <- Users.create(CreateUser("guy"))
-    result <- Users.get(user.id)
-    _ <- Console.printLine(s"created user: $user, fetched result: $result")
-  yield ()
+  val myApp = for {
+    _ <- ChatServerMain.myAppLogic.fork
+    client <- ChatClient.scoped
+    _ <- ZIO.scoped {
+      client.sayHello(HelloRequest("guyg"))
+    }
+  } yield ()
 
-  def run = appLogic.provide(UsersLive.layer)
+  def run = myApp
   
 }
-

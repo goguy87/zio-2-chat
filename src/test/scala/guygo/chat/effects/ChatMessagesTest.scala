@@ -22,7 +22,7 @@ object ChatMessagesTest extends ZIOSpecDefault {
     listWitDefaultPage,
     listWithFilterByUser,
     listWithFilterByUserAdPagination
-  ).provideCustomLayer(ChatMessagesLive.layer)
+  ).provideLayer(ChatMessagesLive.layer)
 
   val randomUserId = Random.nextUUID.map(UserId.from)
   val message = "hello user!"

@@ -11,7 +11,7 @@ object UsersTest extends ZIOSpecDefault {
   def spec = suite("Users")(
     create,
     get
-  ).provideCustomLayer(UsersLive.layer)
+  ).provideLayer(UsersLive.layer)
 
   val id = UUID.randomUUID
   val userId = UserId.from(id)

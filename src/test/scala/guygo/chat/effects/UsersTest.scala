@@ -6,12 +6,12 @@ import zio.test.Assertion.*
 
 import java.util.UUID
 
-object UsersTest extends ZIOSpecDefault {
+object UsersTest extends BaseSpec {
 
-  def spec = suite("Users")(
+  def baseSpec = suite("Users")(
     create,
     get
-  ).provideLayer(UsersLive.layer)
+  )
 
   val id = UUID.randomUUID
   val userId = UserId.from(id)
@@ -19,17 +19,16 @@ object UsersTest extends ZIOSpecDefault {
   val createUser = Users.create(CreateUser(name))
 
   val create = test("create a user") {
-    for
+    for {
       _ <- TestRandom.feedUUIDs(id)
       user <- createUser
-    yield assertTrue(user == User(userId, name))
+    } yield assertTrue(user == User(userId, name))
   }
 
   val get = test("get a user") {
-    for
+    for {
       createdUser <- createUser
       user <- Users.get(createdUser.id)
-    yield assertTrue(user contains createdUser)
+    } yield assertTrue(user contains createdUser)
   }
-
 }

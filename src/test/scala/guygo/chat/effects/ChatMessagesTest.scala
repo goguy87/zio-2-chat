@@ -7,14 +7,14 @@ import guygo.chat.effects.ListChatMessages.*
 
 import java.util.UUID
 
-object ChatMessagesTest extends ZIOSpecDefault {
+object ChatMessagesTest extends BaseSpec {
 
   /**
    * TODO
    * 1. implicit tenant
    */
 
-  def spec = suite("ChatMessages")(
+  def baseSpec = suite("ChatMessages")(
     create,
     get,
     list,
@@ -22,7 +22,7 @@ object ChatMessagesTest extends ZIOSpecDefault {
     listWitDefaultPage,
     listWithFilterByUser,
     listWithFilterByUserAdPagination
-  ).provideLayer(ChatMessagesLive.layer)
+  )
 
   val randomUserId = Random.nextUUID.map(UserId.from)
   val message = "hello user!"
@@ -37,12 +37,12 @@ object ChatMessagesTest extends ZIOSpecDefault {
   val id = UUID.randomUUID
 
   val create = test("create a chat message") {
-    for
+    for {
       to <- randomUserId
       from <- randomUserId
       _ <- TestRandom.feedUUIDs(id)
       chatMessage <- createChatMessage(to, from, message)
-    yield assertTrue {
+    } yield assertTrue {
       chatMessage == ChatMessage(
         ChatMessageId.from(id),
         to,
@@ -52,16 +52,16 @@ object ChatMessagesTest extends ZIOSpecDefault {
   }
 
   val get = test("get a chat message") {
-    for
+    for {
       to <- randomUserId
       from <- randomUserId
       createdChatMessage <- createChatMessage(to, from, message)
       chatMessage <- ChatMessages.get(createdChatMessage.id)
-    yield assertTrue(chatMessage contains createdChatMessage)
+    } yield assertTrue(chatMessage contains createdChatMessage)
   }
 
   val list = test("list all chat messages") {
-    for
+    for {
       to <- randomUserId
       from <- randomUserId
       from2 <- randomUserId
@@ -69,22 +69,22 @@ object ChatMessagesTest extends ZIOSpecDefault {
       chat2 <- createChatMessage(to, from, message)
       chat3 <- createChatMessage(to, from2, message)
       result <- ChatMessages.listChatMessages(ListChatMessages())
-    yield assert(result.chatMessages) {
+    } yield assert(result.chatMessages) {
       hasSameElements(Seq(chat1, chat2, chat3))
     }
   }
 
   val listWitDefaultPage = test("list all chat messages with default page") {
-    for
+    for {
       to <- randomUserId
       from <- randomUserId
       _ <- ZIO.collectAll(List.fill(Page.defaultLimit + 1)(createChatMessage(to, from, message)))
       result <- ChatMessages.listChatMessages(ListChatMessages())
-    yield assertTrue(result.chatMessages.size == Page.defaultLimit)
+    } yield assertTrue(result.chatMessages.size == Page.defaultLimit)
   }
 
   val listWithPaging = test("list all chat messages with pagination") {
-    for
+    for {
       to <- randomUserId
       from <- randomUserId
       from2 <- randomUserId
@@ -95,7 +95,7 @@ object ChatMessagesTest extends ZIOSpecDefault {
         page = Page.Offset(0, 2))
       firstPage <- ChatMessages.listChatMessages(request)
       secondPage <- ChatMessages.listChatMessages(request.copy(page = Page.Offset(2, 2)))
-    yield assert(firstPage) {
+    } yield assert(firstPage) {
       hasField[ListChatMessagesResponse, Seq[ChatMessage]]("chatMessages", _.chatMessages, hasSameElements(Seq(chat1, chat2))) &&
         hasField("pagingMetadata", _.pagingMetadata, equalTo(PagingMetadata.Count(2)))
     } && assert(secondPage) {
@@ -105,7 +105,7 @@ object ChatMessagesTest extends ZIOSpecDefault {
   }
 
   val listWithFilterByUser = test("list all chat messages from user") {
-    for
+    for {
       to <- randomUserId
       from <- randomUserId
       from2 <- randomUserId
@@ -113,13 +113,13 @@ object ChatMessagesTest extends ZIOSpecDefault {
       chat2 <- createChatMessage(to, from, message)
       _ <- createChatMessage(to, from2, message)
       result <- ChatMessages.listChatMessages(ListChatMessages(Filter.ByUser(from)))
-    yield assert(result.chatMessages) {
+    } yield assert(result.chatMessages) {
       hasSameElements(Seq(chat1, chat2))
     }
   }
 
   val listWithFilterByUserAdPagination = test("list all chat messages from user with pagination") {
-    for
+    for {
       to <- randomUserId
       from <- randomUserId
       from2 <- randomUserId
@@ -132,11 +132,10 @@ object ChatMessagesTest extends ZIOSpecDefault {
       _ <- createChatMessage(to, from2, message)
       firstPage <- ChatMessages.listChatMessages(request)
       secondPage <- ChatMessages.listChatMessages(request.copy(page = Page.Offset(2, 2)))
-    yield assert(firstPage.chatMessages) {
+    } yield assert(firstPage.chatMessages) {
       hasSameElements(Seq(chat1, chat2))
     } && assert(secondPage.chatMessages) {
       hasSameElements(Seq(chat3))
     }
   }
-
 }

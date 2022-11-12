@@ -25,7 +25,7 @@ object ChatMessages {
 
 case class CreateChatMessage(to: UserId, from: UserId, message: Option[String])
 
-case class ListChatMessages(filter: Filter = Filter.Empty, page: Page = Page.first)
+case class ListChatMessages(filter: Filter = Filter.Empty, page: Page = Page.First)
 
 object ListChatMessages {
   sealed trait Filter

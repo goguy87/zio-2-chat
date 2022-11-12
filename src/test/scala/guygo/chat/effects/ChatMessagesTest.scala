@@ -78,9 +78,9 @@ object ChatMessagesTest extends BaseSpec {
     for {
       to <- randomUserId
       from <- randomUserId
-      _ <- ZIO.collectAll(List.fill(Page.defaultLimit + 1)(createChatMessage(to, from, message)))
+      _ <- ZIO.collectAll(List.fill(Page.DefaultLimit + 1)(createChatMessage(to, from, message)))
       result <- ChatMessages.listChatMessages(ListChatMessages())
-    } yield assertTrue(result.chatMessages.size == Page.defaultLimit)
+    } yield assertTrue(result.chatMessages.size == Page.DefaultLimit)
   }
 
   val listWithPaging = test("list all chat messages with pagination") {

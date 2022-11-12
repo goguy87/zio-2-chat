@@ -1,9 +1,9 @@
-ThisBuild / scalaVersion     := "3.1.1"
+ThisBuild / scalaVersion     := "3.2.0"
 ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "guygo.chat"
 ThisBuild / organizationName := "example"
 
-lazy val zioVersion = "2.0.0"
+lazy val zioVersion = "2.0.3"
 
 lazy val root = (project in file("."))
   .settings(

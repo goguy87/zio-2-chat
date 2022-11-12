@@ -6,7 +6,7 @@ import guygo.chat.effects.PaginationOps.*
 import zio.{Random, Ref, Task, UIO, ZLayer}
 
 case class ChatMessagesLive(ref: Ref[Database])
-  extends ChatMessages:
+  extends ChatMessages {
 
   def create(request: CreateChatMessage): Task[ChatMessage] =
     for
@@ -44,8 +44,10 @@ case class ChatMessagesLive(ref: Ref[Database])
     Random.nextUUID
       .map(ChatMessageId.from)
       .map(ChatMessage(_, request.to, request.from, request.message))
+    
+}
 
-object ChatMessagesLive:
+object ChatMessagesLive {
 
   val layer = ZLayer {
     for
@@ -54,3 +56,5 @@ object ChatMessagesLive:
   }
 
   type Database = Map[ChatMessageId, ChatMessage]
+  
+}

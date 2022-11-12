@@ -2,7 +2,7 @@ package guygo.chat.effects
 
 import zio.{Random, Ref, Task, ZLayer}
 
-case class UsersLive(ref: Ref[Map[UserId, User]]) extends Users:
+case class UsersLive(ref: Ref[Map[UserId, User]]) extends Users {
 
   def create(request: CreateUser): Task[User] =
     for
@@ -14,10 +14,14 @@ case class UsersLive(ref: Ref[Map[UserId, User]]) extends Users:
   def get(id: UserId): Task[Option[User]] =
     ref.get.map(_.get(id))
 
-object UsersLive:
+}
+
+object UsersLive {
 
   val layer = ZLayer {
     for
       ref <- Ref.make(Map.empty[UserId, User])
     yield UsersLive(ref)
   }
+
+}

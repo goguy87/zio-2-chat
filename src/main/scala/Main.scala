@@ -2,7 +2,7 @@ import zio.*
 import zio.Console
 import guygo.chat.effects._
 
-object Main extends ZIOAppDefault:
+object Main extends ZIOAppDefault {
 
   val appLogic = for
     user <- Users.create(CreateUser("guy"))
@@ -11,4 +11,6 @@ object Main extends ZIOAppDefault:
   yield ()
 
   def run = appLogic.provide(UsersLive.layer)
+  
+}
 

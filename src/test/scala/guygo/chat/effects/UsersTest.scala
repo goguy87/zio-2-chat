@@ -6,7 +6,7 @@ import zio.test.Assertion.*
 
 import java.util.UUID
 
-object UsersTest extends ZIOSpecDefault:
+object UsersTest extends ZIOSpecDefault {
 
   def spec = suite("Users")(
     create,
@@ -22,12 +22,14 @@ object UsersTest extends ZIOSpecDefault:
     for
       _ <- TestRandom.feedUUIDs(id)
       user <- createUser
-    yield  assertTrue(user == User(userId, name))
+    yield assertTrue(user == User(userId, name))
   }
 
   val get = test("get a user") {
     for
       createdUser <- createUser
       user <- Users.get(createdUser.id)
-    yield  assertTrue(user contains createdUser)
+    yield assertTrue(user contains createdUser)
   }
+
+}

@@ -7,7 +7,7 @@ import guygo.chat.effects.ListChatMessages.*
 
 import java.util.UUID
 
-object ChatMessagesTest extends ZIOSpecDefault:
+object ChatMessagesTest extends ZIOSpecDefault {
 
   /**
    * TODO
@@ -138,3 +138,5 @@ object ChatMessagesTest extends ZIOSpecDefault:
       hasSameElements(Seq(chat3))
     }
   }
+
+}
